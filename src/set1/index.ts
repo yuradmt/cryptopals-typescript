@@ -1,6 +1,6 @@
 import fs from 'fs';
 import crypto from 'crypto';
-import R, { max } from 'ramda';
+import R from 'ramda';
 import { letterScore } from './frequency';
 
 /**
@@ -199,7 +199,7 @@ export async function breakRepeatingKeyXor(): Promise<string[]> {
 // Decrypt it. You know the key, after all.
 
 // Easiest way: use OpenSSL::Cipher and give it AES-128-ECB as the cipher.
-export async function aesInECBMode() {
+export async function aesInECBMode(): Promise<string> {
   try {
     const file = await fs.promises.readFile('./src/set1/7.txt');
     const buf = Buffer.from(file.toString('utf-8'), 'base64');
@@ -229,7 +229,11 @@ export async function aesInECBMode() {
 // Remember that the problem with ECB is that it is stateless and deterministic;
 // the same 16 byte plaintext block will always produce the same 16 byte ciphertext.
 
-export async function detectAESinECBmode() {
+interface ECBDetection {
+  repetitions: number;
+  ecbCipherText: string;
+}
+export async function detectAESinECBmode(): Promise<ECBDetection> {
   const BLOCK_SIZE = 16;
   const file = await fs.promises.readFile('./src/set1/8.txt');
   const bufs = file
@@ -246,7 +250,6 @@ export async function detectAESinECBmode() {
       candidate = buf;
     }
   });
-  console.log(`detected ${maxRepetitions} in ${candidate.toString('hex')}`);
   return {
     repetitions: maxRepetitions,
     ecbCipherText: candidate.toString('hex'),
