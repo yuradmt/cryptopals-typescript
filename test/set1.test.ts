@@ -7,6 +7,7 @@ import {
   hammingDistance,
   breakRepeatingKeyXor,
   aesInECBMode,
+  detectAESinECBmode,
 } from '../src/set1';
 describe('set 1', () => {
   it('converts hex to base64', () => {
@@ -62,5 +63,11 @@ describe('set 1', () => {
   it('deciphers AES in ECB mode', async () => {
     const decoded = await aesInECBMode();
     expect(decoded.slice(0, 8)).toBe("I'm back");
+  });
+
+  it('detects AES in ECB mode', async () => {
+    const { repetitions, ecbCipherText } = await detectAESinECBmode();
+    expect(repetitions).toBe(3);
+    expect(ecbCipherText.length).toBeGreaterThan(0);
   });
 });

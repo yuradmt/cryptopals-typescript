@@ -1,5 +1,5 @@
-import { aesInECBMode } from './set1/';
+import { detectAESinECBmode } from './set1/';
 
-aesInECBMode().then(console.log);
+detectAESinECBmode().then(console.log);
 
 // console.log('Usage: npm run test');

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import crypto from 'crypto';
+import R, { max } from 'ramda';
 import { letterScore } from './frequency';
 
 /**
@@ -227,3 +228,27 @@ export async function aesInECBMode() {
 
 // Remember that the problem with ECB is that it is stateless and deterministic;
 // the same 16 byte plaintext block will always produce the same 16 byte ciphertext.
+
+export async function detectAESinECBmode() {
+  const BLOCK_SIZE = 16;
+  const file = await fs.promises.readFile('./src/set1/8.txt');
+  const bufs = file
+    .toString('utf-8')
+    .split('\n')
+    .map((line) => Buffer.from(line.trim(), 'hex'));
+  let maxRepetitions = 0;
+  let candidate: Buffer = Buffer.from('');
+  bufs.forEach((buf) => {
+    const chunks = R.splitEvery(BLOCK_SIZE, Array.from(buf));
+    const repetitions = chunks.length - R.uniq(chunks).length;
+    if (repetitions > maxRepetitions) {
+      maxRepetitions = repetitions;
+      candidate = buf;
+    }
+  });
+  console.log(`detected ${maxRepetitions} in ${candidate.toString('hex')}`);
+  return {
+    repetitions: maxRepetitions,
+    ecbCipherText: candidate.toString('hex'),
+  };
+}
