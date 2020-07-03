@@ -1,5 +1,4 @@
-import { detectAESinECBmode } from './set1/';
+import { cbcModeDecrypt } from './set2';
 
-detectAESinECBmode().then(console.log);
-
-// console.log('Usage: npm run test');
+console.log('Usage: npm run test');
+cbcModeDecrypt().then(console.log);

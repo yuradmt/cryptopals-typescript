@@ -6,17 +6,17 @@ import { letterScore } from './frequency';
 /**
  * Challenge 1
  */
-export function hexToBase64(hex: string): string {
-  return Buffer.from(hex, 'hex').toString('base64');
+export function hexToBase64(hex: Buffer): string {
+  return hex.toString('base64');
 }
 
 /**
  * Challenge 2
  */
-export function fixedBufferXor(buf1: Buffer, buf2: Buffer): string {
+export function fixedBufferXor(buf1: Buffer, buf2: Buffer): Buffer {
   const res = new Uint8Array(buf1.length);
   buf1.forEach((byte, i) => (res[i] = byte ^ buf2[i]));
-  return Buffer.from(res).toString('hex');
+  return Buffer.from(res);
 }
 
 /**
@@ -44,7 +44,7 @@ export function singleByteXor(text: string): { decoded: string; key: number } {
       Buffer.alloc(textBuf.length).fill(ch),
     );
     const res: string[] = [];
-    Buffer.from(xored, 'hex').forEach((byte) => {
+    xored.forEach((byte) => {
       res.push(String.fromCharCode(byte));
     });
     const decoded = res.join('');
@@ -84,12 +84,12 @@ export async function detectSingleByteXor(): Promise<string> {
  * Chalenge 5
  */
 
-export function repeatingKeyXor(text: Buffer, key: string): string {
+export function repeatingKeyXor(text: Buffer, key: string): Buffer {
   const result = Buffer.alloc(text.length);
   for (let i = 0; i < text.length; i++) {
     result[i] = text[i] ^ key.charCodeAt(i % key.length);
   }
-  return result.toString('hex');
+  return result;
 }
 
 /**
@@ -177,9 +177,9 @@ export async function breakRepeatingKeyXor(): Promise<string[]> {
     solutions.push(solution);
   }
 
-  const decoded = Buffer.from(
-    repeatingKeyXor(file, solutions[1].toString('ascii')),
-    'hex',
+  const decoded = repeatingKeyXor(
+    file,
+    solutions[1].toString('ascii'),
   ).toString('utf-8');
   console.log(`sol ${solutions[1]}:`, decoded);
 
@@ -199,7 +199,10 @@ export async function breakRepeatingKeyXor(): Promise<string[]> {
 // Decrypt it. You know the key, after all.
 
 // Easiest way: use OpenSSL::Cipher and give it AES-128-ECB as the cipher.
-export async function aesInECBMode(): Promise<string> {
+
+// TODO change return type to Buffer
+
+export async function aesInECBMode(): Promise<Buffer> {
   try {
     const file = await fs.promises.readFile('./src/set1/7.txt');
     const buf = Buffer.from(file.toString('utf-8'), 'base64');
@@ -208,12 +211,11 @@ export async function aesInECBMode(): Promise<string> {
       'YELLOW SUBMARINE',
       null,
     );
-    let decrypted = '';
-    decrypted += decipher.update(buf);
-    decrypted += decipher.final();
+    let decrypted = decipher.update(buf);
+    decrypted = Buffer.concat([decrypted, decipher.final()]);
     return decrypted;
   } catch (err) {
-    return err.message;
+    return Buffer.from('');
   }
 }
 

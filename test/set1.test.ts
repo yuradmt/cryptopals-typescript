@@ -12,7 +12,10 @@ import {
 describe('set 1', () => {
   it('converts hex to base64', () => {
     const res = hexToBase64(
-      '49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d',
+      Buffer.from(
+        '49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d',
+        'hex',
+      ),
     );
     expect(res).toBe(
       'SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t',
@@ -22,7 +25,9 @@ describe('set 1', () => {
   it('xors two fixed length buffers', () => {
     const b1 = Buffer.from('1c0111001f010100061a024b53535009181c', 'hex'),
       b2 = Buffer.from('686974207468652062756c6c277320657965', 'hex');
-    expect(fixedBufferXor(b1, b2)).toBe('746865206b696420646f6e277420706c6179');
+    expect(fixedBufferXor(b1, b2).toString('hex')).toBe(
+      '746865206b696420646f6e277420706c6179',
+    );
   });
 
   it('finds single byte xor', () => {
@@ -45,7 +50,7 @@ describe('set 1', () => {
           'ascii',
         ),
         'ICE',
-      ),
+      ).toString('hex'),
     ).toBe(
       '0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f',
     );
@@ -62,7 +67,7 @@ describe('set 1', () => {
 
   it('deciphers AES in ECB mode', async () => {
     const decoded = await aesInECBMode();
-    expect(decoded.slice(0, 8)).toBe("I'm back");
+    expect(decoded.slice(0, 8).toString('utf-8')).toBe("I'm back");
   });
 
   it('detects AES in ECB mode', async () => {
